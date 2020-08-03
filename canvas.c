@@ -66,16 +66,28 @@ void draw_point(frame *f, int i, int j, int color) {
 }
 
 void draw_rect(frame *f, int x0, int y0, int x1, int y1, int color) {
-
+  for (int x=x0; x<x1; x++)
+    for (int y=y0; y<y1; y++)
+      draw_point(f, x, y, color);
 }
 
-void test_pattern(frame *f) {
+void test_pattern(frame *f, int p) {
 
-  for (int i=0; i<f->w; i++)
-    for (int j=0; j<f->h; j++) {
-      int color = (j+i)%16;
-      draw_point(f, i, j, color);
-    }
+  switch (p) {
+    case 0:
+      for (int i=0; i<f->w; i++)
+        for (int j=0; j<f->h; j++) {
+          int color = (j+i)%16;
+          draw_point(f, i, j, color);
+        }
+        break;
+    case 1:
+      draw_rect(f, 8,  8,  24, 24, 0);
+      draw_rect(f, 16, 16, 28, 28, 1);
+      break;
+    default:
+      break;
+  }
 }
 
 int main(int argc, char **argv) {
@@ -87,7 +99,7 @@ int main(int argc, char **argv) {
 
   GLbyte canvas[W*H*4];
   frame f = (frame){canvas, W, H};
-  test_pattern(&f);
+  test_pattern(&f, 1);
   GLFWwindow *window = NULL;
   const GLubyte *renderer;
   const GLubyte *version;
@@ -109,8 +121,9 @@ int main(int argc, char **argv) {
     1.0f, 0.0f, 0.0f };
 
   puts("initializing glfw");
+
   if (!glfwInit()) {
-    fprintf(stderr,
+     fprintf(stderr,
       "couldn't initialize glfw3\n");
     return -1;
   }
