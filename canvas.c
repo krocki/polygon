@@ -10,7 +10,7 @@
 #include <GLFW/glfw3.h>
 
 #define W 32
-#define H 20
+#define H 32
 
 const char *vertex_shader =
   "#version 330\n"
@@ -42,24 +42,39 @@ typedef struct {
   int i, j;
 } vec2i;
 
-typedef struct {
-  float x,y,w,z;
-} vec4f;
+float pal[16][4] = {
+  {0.53f, 0.00f, 0.00f, 1.0f},
+  {0.07f, 0.13f, 0.27f, 1.0f},
+  {0.07f, 0.20f, 0.33f, 1.0f},
+  {0.13f, 0.27f, 0.40f, 1.0f},
+  {0.20f, 0.33f, 0.47f, 1.0f},
+  {0.33f, 0.47f, 0.60f, 1.0f},
+  {0.47f, 0.67f, 0.73f, 1.0f},
+  {0.73f, 0.53f, 0.00f, 1.0f},
+  {1.00f, 0.00f, 0.00f, 1.0f},
+  {0.80f, 0.60f, 0.00f, 1.0f},
+  {0.87f, 0.67f, 0.00f, 1.0f},
+  {0.93f, 0.80f, 0.00f, 1.0f},
+  {1.00f, 0.93f, 0.00f, 1.0f},
+  {1.00f, 1.00f, 0.47f, 1.0f},
+  {1.00f, 1.00f, 0.67f, 1.0f}
+};
 
-void draw_point(frame *f, vec2i *pt, float col[4]) {
-  printf("%d, %d = %f,%f,%f,%f\n",
-    pt->i, pt->j, col[0], col[1], col[2], col[3]);
-
+void draw_point(frame *f, int i, int j, int color) {
   for (int k=0; k<4; k++)
-    f->buf[k+4*f->w*pt->j+4*pt->i] = col[k];
+    f->buf[k+4*f->w*j+4*i] = (GLbyte)(pal[color % 16][k] * 255.0f);
+}
+
+void draw_rect(frame *f, int x0, int y0, int x1, int y1, int color) {
+
 }
 
 void test_pattern(frame *f) {
 
   for (int i=0; i<f->w; i++)
     for (int j=0; j<f->h; j++) {
-      float c[4] = {64*((i+j)%4),64*((i-j)%4),32*((i+j)%8),255};
-      draw_point(f, &((vec2i){i, j}), c);
+      int color = (j+i)%16;
+      draw_point(f, i, j, color);
     }
 }
 
