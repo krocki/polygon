@@ -1,5 +1,5 @@
 .SUFFIXES:
-TARGETS=poly
+TARGETS=poly canvas
 
 CC=gcc
 CFLAGS=-g -Wfatal-errors -O0 -Wall -Wfatal-errors
