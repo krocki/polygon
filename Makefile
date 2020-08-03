@@ -4,6 +4,7 @@ TARGETS=poly
 CC=gcc
 CFLAGS=-g -Wfatal-errors -O0 -Wall -Wfatal-errors
 DEPS:=$(wildcard *.h) Makefile
+LFLAGS=
 
 OS:=$(shell uname)
 ifeq ($(OS),Darwin) # Mac OS
@@ -11,6 +12,7 @@ ifeq ($(OS),Darwin) # Mac OS
   CFLAGS:=$(CFLAGS) -DAPPLE -DGL_SILENCE_DEPRECATION
 else # Linux or other
   GL_FLAGS=-lglfw -lGL -lpthread
+  LFLAGS:=$(LFLAGS) -L/usr/lib -L/usr/lib64
 endif
 
 LFLAGS:=$(LFLAGS) $(GL_FLAGS)
@@ -23,7 +25,7 @@ all: $(TARGETS) $(DEPS)
 #	$(CC) $(CFLAGS) -c $< -o $@
 
 %: %.c $(DEPS)
-	$(CC) $(CFLAGS) $(GL_FLAGS) $< -o $@
+	$(CC) $(CFLAGS) $< -o $@ $(LFLAGS)
 
 clean:
 	rm -rf *.o $(TARGETS)
