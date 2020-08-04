@@ -16,6 +16,7 @@ int run() {
 #else
 #include <pthread.h>
 #include <GLFW/glfw3.h>
+
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
@@ -26,9 +27,10 @@ static GLFWwindow* window;
 u8 flip_y=1;
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (action == GLFW_PRESS &&
-      key == GLFW_KEY_ESCAPE)
+      key == GLFW_KEY_ESCAPE) {
       glfwSetWindowShouldClose(window, GLFW_TRUE);
-      printf("scancode = %d, mods = %d\n", scancode, mods);
+    }
+    printf("scancode = %d, mods = %d\n", scancode, mods);
 }
 
 void draw_line(int x0, int y0, int x1, int y1, float r, float g, float b, float a, float w, int scr_w, int scr_h) {

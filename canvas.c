@@ -4,8 +4,11 @@
 
 #ifdef __APPLE__
 #include <OpenGL/gl3.h>
-#define GLFW_INCLUDE_GLCOREARB
+#else
+#define GL_GLEXT_PROTOTYPES
+#include <GL/gl.h>
 #endif
+#define GLFW_INCLUDE_GLCOREARB
 
 #include <GLFW/glfw3.h>
 
@@ -75,12 +78,13 @@ void test_pattern(frame *f, int p) {
 
   switch (p) {
     case 0:
-      for (int i=0; i<f->w; i++)
+      for (int i=0; i<f->w; i++) {
         for (int j=0; j<f->h; j++) {
           int color = (j+i)%16;
           draw_point(f, i, j, color);
         }
-        break;
+      }
+      break;
     case 1:
       draw_rect(f, 8,  8,  24, 24, 0);
       draw_rect(f, 16, 16, 28, 28, 1);
