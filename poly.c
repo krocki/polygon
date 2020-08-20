@@ -20,6 +20,7 @@ int run() {
 #else
 #include <pthread.h>
 #include <GLFW/glfw3.h>
+
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
@@ -29,9 +30,10 @@ static GLFWwindow* window;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (action == GLFW_PRESS &&
-      key == GLFW_KEY_ESCAPE)
+      key == GLFW_KEY_ESCAPE) {
       glfwSetWindowShouldClose(window, GLFW_TRUE);
-      printf("scancode = %d, mods = %d\n", scancode, mods);
+    }
+    printf("scancode = %d, mods = %d\n", scancode, mods);
 }
 
 void draw_triangle(point pts[3]) {
