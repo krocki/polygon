@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <math.h>
 
 #ifdef __APPLE__
 #include <OpenGL/gl3.h>
@@ -76,15 +77,54 @@ void draw_rect(frame *f, int x0, int y0, int x1, int y1, int color) {
 
 void draw_line(frame *f, int x0, int y0, int x1, int y1, int color) {
 
+  printf("draw_line x0=%d, y0=%d, x1=%d, y1=%d, color=%d\n", x0, y0, x1, y1, color);
+
   int xa = x0<x1?x0:x1;
   int ya = y0<y1?y0:y1;
+  int xb = x0<x1?x1:x0;
+  int yb = y0<y1?y1:y0;
 
-  float slope = (float)abs(x1-x0)/(float)abs(y1-y0);
-  printf("slope = %f\n", slope);
-  for (int x=xa; x<x1; x++) {
-    printf("x=%d, y=%f (%d)\n", x, ya+slope, (int)(ya+slope));
+  /* end points */
+  draw_point(f, x0, y0, color);
+  draw_point(f, x1, y1, color);
+
+  /* horizontal */
+  if (x0 == x1) {
+    for (int y=ya; y<yb; y++) draw_point(f, x0, y, color);
+    return;
+  }
+
+  /* vertical */
+  if (y0 == y1) {
+    for (int x=xa; x<xb; x++) draw_point(f, x, y0, color);
+    return;
+  }
+
+  int dx = abs(x1-x0);
+  int dy = abs(y1-y0);
+
+  if (dy>dx) {
+    float sx = (float)(x1-x0)/(float)dy;
+    for (int yi=0; yi<dy; yi++) {
+      int x=x0+roundf(yi*sx);
+      int sign=(y1-y0)>0?1:-1;
+      int y=y0+yi*sign;
+      draw_point(f, x, y, color);
+    }
+    return;
+  }
+  else {
+    float sy = (float)(y1-y0)/(float)dx;
+    for (int xi=0; xi<dx; xi++) {
+      int y=y0+roundf(xi*sy);
+      int sign=(x1-x0)>0?1:-1;
+      int x=x0+xi*sign;
+      draw_point(f, x, y, color);
+    }
+    return;
   }
 }
+
 void draw_triangle(frame *f, int x0, int y0, int x1, int y1, int x2, int y2, int color) {
 
   draw_line(f, x0, y0, x1, y1, color);
@@ -92,6 +132,11 @@ void draw_triangle(frame *f, int x0, int y0, int x1, int y1, int x2, int y2, int
   draw_line(f, x2, y2, x0, y0, color);
 
 }
+
+void clear(frame *f) {
+  draw_rect(f, 0,  0,  f->w, f->h, 15);
+}
+
 void test_pattern(frame *f, int p) {
 
   switch (p) {
@@ -104,9 +149,11 @@ void test_pattern(frame *f, int p) {
       }
       break;
     case 1:
-      draw_rect(f, 8,  8,  24, 24, 0);
-      draw_rect(f, 16, 16, 28, 28, 1);
-      draw_line(f, 10, 20, 15, 15, 1);
+      draw_rect(f, 10, 11, 18, 23, 1);
+      draw_line(f, 13,  3, 27, 20, 3);
+      draw_line(f, 27, 20, 10, 29, 4);
+      draw_line(f, 10, 29,  3, 15, 5);
+      draw_line(f,  3, 15, 13,  3, 6);
       break;
     default:
       break;
@@ -121,8 +168,11 @@ int main(int argc, char **argv) {
   int height = H * scale;
 
   GLbyte canvas[W*H*4];
+  ////
   frame f = (frame){canvas, W, H};
+  clear(&f);
   test_pattern(&f, 1);
+  ////
   GLFWwindow *window = NULL;
   const GLubyte *renderer;
   const GLubyte *version;
