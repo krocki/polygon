@@ -6,9 +6,13 @@ typedef uint8_t  u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
 
+typedef struct {
+  int x, y;
+} point;
+
 #if NOGL
 
-// no GL ?
+// no GL - render to bitmap?
 int run() {
   return 0;
 }
@@ -23,7 +27,6 @@ int run() {
 #endif
 static GLFWwindow* window;
 
-u8 flip_y=1;
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (action == GLFW_PRESS &&
       key == GLFW_KEY_ESCAPE)
@@ -31,19 +34,30 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
       printf("scancode = %d, mods = %d\n", scancode, mods);
 }
 
-void draw_line(int x0, int y0, int x1, int y1, float r, float g, float b, float a, float w, int scr_w, int scr_h) {
+void draw_triangle(point pts[3]) {
 
-    glLineWidth(w);
-    float incr_x = 1.0f/(float)scr_w; float incr_y = 1.0f/(float)scr_h;
-    glColor4f(r, g, b, a);
-    float i0 = x0 * incr_x;
-    float j0 = y0 * incr_y;
-    float i1 = x1 * incr_x;
-    float j1 = y1 * incr_y;
-    j0 = flip_y ? 1-j0 : j0; // FLIP vert
-    j1 = flip_y ? 1-j1 : j1; // FLIP vert
-    glVertex2f(i0, j0);
-    glVertex2f(i1, j1);
+  glBegin(GL_TRIANGLES);
+
+    glColor4f(0.5, 1, 1, 1);
+    glVertex2i(pts[0].x, pts[0].y);
+    glVertex2i(pts[1].x, pts[1].y);
+    glVertex2i(pts[2].x, pts[2].y);
+
+  glEnd();
+}
+
+void draw_line_strip(int n, point *pts, int wrap) {
+
+  glBegin(GL_LINE_STRIP);
+  glColor4f(1, 1, 1, 1);
+
+  for (int i=0; i<n; i++)
+    glVertex2i(pts[i].x, pts[i].y);
+
+  if (wrap)
+    glVertex2i(pts[0].x, pts[0].y);
+
+  glEnd();
 }
 
 int run() {
@@ -96,30 +110,28 @@ int run() {
 
     int fb_width, fb_height;
     glfwGetFramebufferSize(window, &fb_width, &fb_height);
-    //printf("fb size = %d x %d\n", fb_width, fb_height);
-    //const float fb_ratio = fb_width / (float) fb_height;
+
     glClear(GL_COLOR_BUFFER_BIT);
     glViewport(0, 0, fb_width, fb_height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0.f, gl_width, 0.f, gl_height, 0.f, 1.f);
 
-    glBegin(GL_LINE_STRIP);
-    glColor4f(1, 1, 1, 1);
-    //float x0 = 0.2f, y0 = 0.2f, x1 = 0.8f, y1 = 0.8f;
-    //glVertex2f(x0, y0);
-    //glVertex2f(x1, y0);
-    //glVertex2f(x1, y1);
-    //glVertex2f(x0, y1);
-    //glVertex2f(x0, y0);
-    int x0 = 1, y0 = 1, x1 = 319,  y1 = 199;
-    glVertex2i(x0, y0);
-    glVertex2i(x1, y0);
-    glVertex2i(x1, y1);
-    glVertex2i(x0, y1);
-    glVertex2i(x0, y0);
-    glEnd();
+    point ctr = {gl_width/2, gl_height/2};
 
+    point vertices[] = {
+      {ctr.x,     ctr.y   },
+      {ctr.x+32,  ctr.y-32},
+      {ctr.x,     ctr.y-32},
+
+      {ctr.x,     ctr.y   },
+      {ctr.x-32,  ctr.y+32},
+      {ctr.x,     ctr.y+32}
+    };
+
+    draw_line_strip(6, vertices, 1);
+    point triangle0[3] = { {10, 10}, {40, 10}, {10, 40} };
+    draw_triangle(triangle0);
     glfwSwapBuffers(window);
     glfwPollEvents();
   }

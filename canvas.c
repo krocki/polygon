@@ -71,6 +71,24 @@ void draw_rect(frame *f, int x0, int y0, int x1, int y1, int color) {
       draw_point(f, x, y, color);
 }
 
+void draw_line(frame *f, int x0, int y0, int x1, int y1, int color) {
+
+  int xa = x0<x1?x0:x1;
+  int ya = y0<y1?y0:y1;
+
+  float slope = (float)abs(x1-x0)/(float)abs(y1-y0);
+  printf("slope = %f\n", slope);
+  for (int x=xa; x<x1; x++) {
+    printf("x=%d, y=%f (%d)\n", x, ya+slope, (int)(ya+slope));
+  }
+}
+void draw_triangle(frame *f, int x0, int y0, int x1, int y1, int x2, int y2, int color) {
+
+  draw_line(f, x0, y0, x1, y1, color);
+  draw_line(f, x1, y1, x2, y2, color);
+  draw_line(f, x2, y2, x0, y0, color);
+
+}
 void test_pattern(frame *f, int p) {
 
   switch (p) {
@@ -84,6 +102,7 @@ void test_pattern(frame *f, int p) {
     case 1:
       draw_rect(f, 8,  8,  24, 24, 0);
       draw_rect(f, 16, 16, 28, 28, 1);
+      draw_line(f, 10, 20, 15, 15, 1);
       break;
     default:
       break;
