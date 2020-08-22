@@ -69,6 +69,10 @@ void draw_point(frame *f, int i, int j, int color) {
     f->buf[k+4*f->w*j+4*i] = (GLbyte)(pal[color % 16][k] * 255.0f);
 }
 
+void draw_point_2i(frame *f, vec2i v, int color) {
+  draw_point(f, v.i, v.j, color);
+}
+
 void draw_rect(frame *f, int x0, int y0, int x1, int y1, int color) {
   for (int x=x0; x<x1; x++)
     for (int y=y0; y<y1; y++)
@@ -137,7 +141,26 @@ void clear(frame *f) {
   draw_rect(f, 0,  0,  f->w, f->h, 15);
 }
 
+void draw_poly(frame *f, vec2i c, vec2i* pts, int n, int color) {
+  int a, b;
+  for (int i=0; i<n; i++) {
+    a=i; b=(i+1)%n;
+    draw_line(f, pts[a].i+c.i, pts[a].j+c.j,
+                 pts[b].i+c.i, pts[b].j+c.j,
+                 color);
+  }
+}
+
+void fill_poly(frame *f, vec2i c, vec2i* pts, int n, int color) {
+
+  draw_poly(f, c, pts, n, color);
+
+}
+
 void test_pattern(frame *f, int p) {
+
+  vec2i c = (vec2i){16, 16};
+  vec2i pts[] = {{0,-5}, {-5, 0}, {0, 5}, {5, 0}};
 
   switch (p) {
     case 0:
@@ -155,6 +178,9 @@ void test_pattern(frame *f, int p) {
       draw_line(f, 10, 29,  3, 15, 5);
       draw_line(f,  3, 15, 13,  3, 6);
       break;
+    case 2:
+      draw_poly(f, c, pts, sizeof pts/sizeof(pts[0]), 4);
+      break;
     default:
       break;
   }
@@ -171,7 +197,7 @@ int main(int argc, char **argv) {
   ////
   frame f = (frame){canvas, W, H};
   clear(&f);
-  test_pattern(&f, 1);
+  test_pattern(&f, 2);
   ////
   GLFWwindow *window = NULL;
   const GLubyte *renderer;
